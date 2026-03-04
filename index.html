@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Margin Tracker 2026 — Budget vs Actual</title>
+<title>Sales Pulse 2026 — Budget vs Actual</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -375,7 +375,7 @@ canvas { width:100% !important; }
 <header>
   <div>
     <div class="h-brand">
-      <div class="h-title">MARGIN <span>TRACKER</span></div>
+      <div class="h-title">SALES <span>PULSE</span></div>
       <div class="h-year">2026</div>
     </div>
     <div class="h-sub">Budget vs Actual · Monthly · GP + ATL Consolidated · incl. PSF26 SSSC 12A – Kapuk Molek</div>
@@ -411,7 +411,7 @@ canvas { width:100% !important; }
 <div class="kpi-strip">
   <div class="kpi" style="--kpi-c:var(--budget)">
     <div class="kpi-l">Full Year Budget</div>
-    <div class="kpi-v" id="kpi-budget">105,681</div>
+    <div class="kpi-v" id="kpi-budget">105,681.00</div>
     <div class="kpi-s">MIDR · GP+ATL</div>
   </div>
   <div class="kpi" style="--kpi-c:var(--actual)">
@@ -481,7 +481,7 @@ canvas { width:100% !important; }
               <th>Plan (MIDR)</th>
               <th>Margin %</th>
               <th>Achievement</th>
-              <th>Gap</th>
+              <th>Gap (MIDR)</th>
             </tr>
           </thead>
           <tbody id="month-tbody"></tbody>
@@ -563,7 +563,7 @@ canvas { width:100% !important; }
 </div>
 
 <footer>
-  <span>Margin Tracker 2026 · GP+ATL Consolidated · 7 PS Files · Jan 5,987M · Feb 372M</span>
+  <span>Sales Pulse 2026 · GP+ATL Consolidated · 7 PS Files · Jan 5,987M · Feb 372M</span>
   <span id="footer-updated">Last updated: —</span>
 </footer>
 
@@ -685,7 +685,7 @@ canvas { width:100% !important; }
         </div>
       </div>
       <div class="modal-gap" id="modal-gap-row">
-        <span class="modal-gap-label">Gap (Actual − Budget)</span>
+        <span class="modal-gap-label">Gap vs Budget (MIDR)</span>
         <span class="modal-gap-val" id="modal-gap-val">—</span>
       </div>
       <div>
@@ -761,7 +761,7 @@ function persist() {
 
 let selectedMonth = NOW_MONTH <= 11 ? NOW_MONTH : 11;
 
-const fmt  = (v, d=1) => v == null ? '—' : Number(v).toLocaleString('id-ID', {maximumFractionDigits:d});
+const fmt  = (v, d=2) => v == null ? '—' : Number(v).toLocaleString('id-ID', {minimumFractionDigits:d, maximumFractionDigits:d});
 const fmtP = v => v == null ? '—' : v.toFixed(2) + '%';
 const sum  = arr => arr.filter(v => v != null).reduce((a,b)=>a+b,0);
 
@@ -809,7 +809,7 @@ function buildChart() {
             if(ctx.dataset.label==='Actual'&&ACTUAL.margin[m]!=null){
               const pct=((ACTUAL.margin[m]/BUDGET_MARGIN[m])*100).toFixed(1);
               const tag=(m===0||m===1)?' [PS Consolidated]':'';
-              return ` Actual: ${fmt(ctx.parsed.y,3)} MIDR (${pct}% of budget)${tag}`;
+              return ` Actual: ${fmt(ctx.parsed.y,2)} MIDR (${pct}% of budget)${tag}`;
             }
             return ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)} MIDR`;
           }}
@@ -876,8 +876,8 @@ function buildTable() {
       : actual!=null ? `<span class="month-tag-pill pill-done">✓</span>` : '';
 
     const gapStr = gap==null ? '<td style="color:var(--muted)">—</td>'
-      : gap>=0 ? `<td style="color:var(--ok);font-size:11px">+${fmt(gap,3)}</td>`
-      : `<td style="color:var(--over);font-size:11px">${fmt(gap,3)}</td>`;
+      : gap>=0 ? `<td style="color:var(--ok);font-size:11px">+${fmt(gap,2)} MIDR</td>`
+      : `<td style="color:var(--over);font-size:11px">${fmt(gap,2)} MIDR</td>`;
 
     const actualColor = actual!=null?(isPS?'#f59e0b':'var(--actual)'):'var(--muted)';
     const tr = document.createElement('tr');
@@ -885,9 +885,9 @@ function buildTable() {
     if(isPS)  tr.style.background='rgba(245,158,11,0.03)';
     tr.innerHTML = `
       <td>${m} ${statusPill}</td>
-      <td>${fmt(budget,0)}</td>
-      <td style="color:${actualColor};font-weight:${actual!=null?'600':'400'}">${actual!=null?fmt(actual,3):'—'}</td>
-      <td style="color:${plan!=null?'var(--plan)':'var(--muted)'}">${plan!=null?fmt(plan,3):'—'}</td>
+      <td>${fmt(budget,2)}</td>
+      <td style="color:${actualColor};font-weight:${actual!=null?'600':'400'}">${actual!=null?fmt(actual,2):'—'}</td>
+      <td style="color:${plan!=null?'var(--plan)':'var(--muted)'}">${plan!=null?fmt(plan,2):'—'}</td>
       <td style="color:var(--muted2)">${marginP!=null?fmtP(marginP):'—'}</td>
       <td>${attChip}</td>
       ${gapStr}
@@ -908,12 +908,12 @@ function buildTable() {
   const bw  = ytdPct!=null?Math.min(parseFloat(ytdPct),100).toFixed(1):0;
   tr.innerHTML = `
     <td>FULL YEAR</td>
-    <td>${fmt(totBudget,0)}</td>
-    <td>${totActual>0?fmt(totActual,3):'—'}</td>
-    <td>${totPlan>0?fmt(totPlan,3):'—'}</td>
+    <td>${fmt(totBudget,2)}</td>
+    <td>${totActual>0?fmt(totActual,2):'—'}</td>
+    <td>${totPlan>0?fmt(totPlan,2):'—'}</td>
     <td>—</td>
     <td>${ytdPct!=null?`<div style="min-width:130px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px"><span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:${col};line-height:1">${ytdPct}%</span><span style="font-size:10px;color:var(--muted)">vs budget</span></div><div style="height:4px;background:var(--s3);border-radius:99px;overflow:hidden"><div style="height:100%;width:${bw}%;background:${col};border-radius:99px"></div></div></div>`:'—'}</td>
-    <td>${totActual>0?fmt(totActual-totBudget,3):'—'}</td>
+    <td>${totActual>0?fmt(totActual-totBudget,2):'—'}</td>
   `;
   tbody.appendChild(tr);
 }
@@ -931,7 +931,7 @@ function buildWaterfall() {
     const actualColor=actual==null?'transparent':isPS?'#f59e0b':(actual/budget)>=0.8?'var(--actual)':(actual/budget)>=0.3?'var(--warn)':'var(--over)';
     const div=document.createElement('div');
     div.className='wf-row';
-    div.innerHTML=`<div class="wf-month" style="${isPS?'color:#f59e0b':''}">${m}</div><div class="wf-track"><div class="wf-bg"></div><div class="wf-budget-bar" style="width:${budgetW}%"></div><div class="wf-actual-bar" data-w="${actualW}" style="background:${actualColor}"></div></div><div class="wf-val" style="color:${actual!=null?actualColor:'var(--muted)'}">  ${actual!=null?fmt(actual,1):fmt(budget,0)}</div>`;
+    div.innerHTML=`<div class="wf-month" style="${isPS?'color:#f59e0b':''}">${m}</div><div class="wf-track"><div class="wf-bg"></div><div class="wf-budget-bar" style="width:${budgetW}%"></div><div class="wf-actual-bar" data-w="${actualW}" style="background:${actualColor}"></div></div><div class="wf-val" style="color:${actual!=null?actualColor:'var(--muted)'}">  ${actual!=null?fmt(actual,2):fmt(budget,2)}</div>`;
     el.appendChild(div);
   });
   setTimeout(()=>{ document.querySelectorAll('.wf-actual-bar').forEach(el=>{el.style.width=(el.dataset.w||0)+'%';}); },150);
@@ -941,10 +941,10 @@ function buildWaterfall() {
 function updateKPIs() {
   const totalBudget=sum(BUDGET_MARGIN), ytdActual=sum(ACTUAL.margin.filter(v=>v!=null)), ytdPlan=sum(ACTUAL.plan.filter(v=>v!=null));
   const reported=ACTUAL.margin.filter(v=>v!=null).length;
-  document.getElementById('kpi-budget').textContent=fmt(totalBudget,0);
-  document.getElementById('kpi-actual').textContent=ytdActual>0?fmt(ytdActual,3):'—';
+  document.getElementById('kpi-budget').textContent=fmt(totalBudget,2);
+  document.getElementById('kpi-actual').textContent=ytdActual>0?fmt(ytdActual,2):'—';
   document.getElementById('kpi-actual-sub').textContent=ytdActual>0?'MIDR · YTD':'No data yet';
-  document.getElementById('kpi-plan').textContent=ytdPlan>0?fmt(ytdPlan,3):'—';
+  document.getElementById('kpi-plan').textContent=ytdPlan>0?fmt(ytdPlan,2):'—';
   document.getElementById('kpi-plan-sub').textContent=ytdPlan>0?'MIDR · YTD':'No data yet';
   document.getElementById('kpi-reported').textContent=`${reported} / 12`;
   if(ytdActual>0){
@@ -1013,7 +1013,7 @@ function exportData() {
   const rows=[['Month','Budget (MIDR)','Actual (MIDR)','Plan (MIDR)','Revenue (MIDR)','Margin%','Achievement%','Gap','PS Note']];
   MONTHS.forEach((m,i)=>{
     const att=ACTUAL.margin[i]!=null?((ACTUAL.margin[i]/BUDGET_MARGIN[i])*100).toFixed(2)+'%':'';
-    const gap=ACTUAL.margin[i]!=null?(ACTUAL.margin[i]-BUDGET_MARGIN[i]).toFixed(3):'';
+    const gap=ACTUAL.margin[i]!=null?(ACTUAL.margin[i]-BUDGET_MARGIN[i]).toFixed(2):'';
     const mPct=ACTUAL.margin[i]!=null&&ACTUAL.revenue[i]!=null?((ACTUAL.margin[i]/ACTUAL.revenue[i])*100).toFixed(2)+'%':'';
     const ps=i===0?'Jan: SSSC12A+12B+Youfa7+Mlion9A+9B':i===1?'Feb: Youfa8+Youfa9':'';
     rows.push([m,BUDGET_MARGIN[i],ACTUAL.margin[i]??'',ACTUAL.plan[i]??'',ACTUAL.revenue[i]??'',mPct,att,gap,ps]);
@@ -1067,9 +1067,9 @@ function openModal(idx){
     let html=`<div class="modal-ps-title">📋 PS Consolidated · ${monthLabel} · ${chains.length} Proyek</div>`;
     chains.forEach((c,i)=>{
       const col=colors[i%colors.length];
-      html+=`<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:${col}">${c.name} · ${c.ps}</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--ok)">IDR ${c.margin.toFixed(3)} M · ${c.pct}%</div></div><div class="modal-ps-grid"><div class="modal-ps-item"><div class="modal-ps-label">Revenue</div><div class="modal-ps-val" style="color:var(--actual);font-size:13px">IDR ${c.revenue.toLocaleString('id-ID',{maximumFractionDigits:3})} M</div><div class="modal-ps-sub">${c.customer}</div></div><div class="modal-ps-item"><div class="modal-ps-label">Net Margin</div><div class="modal-ps-val" style="color:var(--ok);font-size:13px">IDR ${c.margin.toFixed(3)} M</div><div class="modal-ps-sub">${c.pct}% consolidated</div></div></div></div>`;
+      html+=`<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:${col}">${c.name} · ${c.ps}</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--ok)">IDR ${c.margin.toFixed(2)} M · ${c.pct}%</div></div><div class="modal-ps-grid"><div class="modal-ps-item"><div class="modal-ps-label">Revenue</div><div class="modal-ps-val" style="color:var(--actual);font-size:13px">IDR ${c.revenue.toLocaleString('id-ID',{maximumFractionDigits:2})} M</div><div class="modal-ps-sub">${c.customer}</div></div><div class="modal-ps-item"><div class="modal-ps-label">Net Margin</div><div class="modal-ps-val" style="color:var(--ok);font-size:13px">IDR ${c.margin.toFixed(2)} M</div><div class="modal-ps-sub">${c.pct}% consolidated</div></div></div></div>`;
     });
-    html+=`<div style="background:rgba(34,211,238,0.06);border-radius:6px;padding:10px 12px;"><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--actual);margin-bottom:8px;">Total ${monthLabel}</div><div class="modal-ps-grid"><div class="modal-ps-item"><div class="modal-ps-label">Total Revenue</div><div class="modal-ps-val" style="color:var(--actual)">IDR ${totalRev.toLocaleString('id-ID',{maximumFractionDigits:3})} M</div><div class="modal-ps-sub">${chains.length} proyek</div></div><div class="modal-ps-item"><div class="modal-ps-label">Total Net Margin</div><div class="modal-ps-val" style="color:var(--ok)">IDR ${totalMargin.toFixed(3)} M</div><div class="modal-ps-sub">${totalPct}% of revenue</div></div></div></div>`;
+    html+=`<div style="background:rgba(34,211,238,0.06);border-radius:6px;padding:10px 12px;"><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--actual);margin-bottom:8px;">Total ${monthLabel}</div><div class="modal-ps-grid"><div class="modal-ps-item"><div class="modal-ps-label">Total Revenue</div><div class="modal-ps-val" style="color:var(--actual)">IDR ${totalRev.toLocaleString('id-ID',{maximumFractionDigits:2})} M</div><div class="modal-ps-sub">${chains.length} proyek</div></div><div class="modal-ps-item"><div class="modal-ps-label">Total Net Margin</div><div class="modal-ps-val" style="color:var(--ok)">IDR ${totalMargin.toFixed(2)} M</div><div class="modal-ps-sub">${totalPct}% of revenue</div></div></div></div>`;
     psInner.innerHTML=html;
   } else {
     psSection.style.display='none';
@@ -1078,20 +1078,20 @@ function openModal(idx){
   // KPIs
   const mPctVal = marginP!=null?marginP.toFixed(2)+'%': (isPS?(totalMarginPct(idx)):'—');
   document.getElementById('modal-kpis').innerHTML=`
-    <div class="modal-kpi"><div class="modal-kpi-l">Budget Margin</div><div class="modal-kpi-v" style="color:var(--budget)">${fmt(budget,0)}</div><div class="modal-kpi-s">MIDR · MB 2026</div></div>
-    <div class="modal-kpi"><div class="modal-kpi-l">Actual Margin${isPS?' (Consol.)':''}</div><div class="modal-kpi-v" style="color:${actual!=null?(isPS?'#f59e0b':'var(--actual)'):'var(--muted)'}">${actual!=null?fmt(actual,3):'—'}</div><div class="modal-kpi-s">${actual!=null?(isPS?'MIDR · PS consolidated':'MIDR · reported'):'Belum dientry'}</div></div>
-    <div class="modal-kpi"><div class="modal-kpi-l">${isPS?'Margin %':'Plan Margin'}</div><div class="modal-kpi-v" style="color:${isPS?'var(--ok)':plan!=null?'var(--plan)':'var(--muted)'}">${isPS?mPctVal:plan!=null?fmt(plan,3):'—'}</div><div class="modal-kpi-s">${isPS?'of end sales':'MIDR · pipeline'}</div></div>
+    <div class="modal-kpi"><div class="modal-kpi-l">Budget Margin</div><div class="modal-kpi-v" style="color:var(--budget)">${fmt(budget,2)}</div><div class="modal-kpi-s">MIDR · MB 2026</div></div>
+    <div class="modal-kpi"><div class="modal-kpi-l">Actual Margin${isPS?' (Consol.)':''}</div><div class="modal-kpi-v" style="color:${actual!=null?(isPS?'#f59e0b':'var(--actual)'):'var(--muted)'}">${actual!=null?fmt(actual,2):'—'}</div><div class="modal-kpi-s">${actual!=null?(isPS?'MIDR · PS consolidated':'MIDR · reported'):'Belum dientry'}</div></div>
+    <div class="modal-kpi"><div class="modal-kpi-l">${isPS?'Margin %':'Plan Margin'}</div><div class="modal-kpi-v" style="color:${isPS?'var(--ok)':plan!=null?'var(--plan)':'var(--muted)'}">${isPS?mPctVal:plan!=null?fmt(plan,2):'—'}</div><div class="modal-kpi-s">${isPS?'of end sales':'MIDR · pipeline'}</div></div>
   `;
 
   window._modalBudget=budget; window._modalActual=actual; window._modalPlan=plan; window._modalAchColor=achColor;
   setAchView('actual');
 
-  document.getElementById('modal-ach-sub').textContent=attPct!=null?`Actual ${fmt(actual,3)} MIDR vs Budget ${fmt(budget,0)} MIDR`:'Belum ada data aktual';
+  document.getElementById('modal-ach-sub').textContent=attPct!=null?`Actual ${fmt(actual,2)} MIDR vs Budget ${fmt(budget,2)} MIDR`:'Belum ada data aktual';
 
   const gapEl=document.getElementById('modal-gap-val');
   if(gap==null){gapEl.textContent='—';gapEl.style.color='var(--muted2)';}
-  else if(gap>=0){gapEl.textContent='+'+fmt(gap,3)+' MIDR';gapEl.style.color='var(--ok)';}
-  else{gapEl.textContent=fmt(gap,3)+' MIDR';gapEl.style.color='var(--over)';}
+  else if(gap>=0){gapEl.textContent='+'+fmt(gap,2)+' MIDR';gapEl.style.color='var(--ok)';}
+  else{gapEl.textContent=fmt(gap,2)+' MIDR';gapEl.style.color='var(--over)';}
 
   document.getElementById('modal-notes').value=(ACTUAL.notes&&ACTUAL.notes[idx])||'';
 
@@ -1136,7 +1136,7 @@ function printMonthReport() {
 
   var achLabelText = attPct == null ? '—' : attPct >= 80 ? 'ON TRACK' : attPct >= 30 ? 'BELOW TARGET' : 'CRITICAL';
   var achBgColor   = attPct == null ? '#64748b' : attPct >= 80 ? '#16a34a' : attPct >= 30 ? '#d97706' : '#dc2626';
-  var gapText  = gap == null ? '—' : (gap >= 0 ? '+' : '') + gap.toFixed(1) + ' M';
+  var gapText  = gap == null ? '—' : (gap >= 0 ? '+' : '') + gap.toFixed(2) + ' MIDR';
   var gapColor = gap == null ? '#64748b' : gap >= 0 ? '#16a34a' : '#dc2626';
   var now = new Date();
   var printDate = now.toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
@@ -1166,11 +1166,11 @@ function printMonthReport() {
           '<div class="proj-customer">' + c.customer + '</div>' +
         '</td>' +
         '<td class="td-num">' +
-          '<div class="num-main">IDR ' + c.margin.toFixed(1) + ' M</div>' +
+          '<div class="num-main">IDR ' + c.margin.toFixed(2) + ' M</div>' +
           '<div class="num-sub">' + c.pct.toFixed(2) + '% of revenue</div>' +
         '</td>' +
         '<td class="td-num">' +
-          '<div class="num-main">IDR ' + c.revenue.toFixed(1) + ' M</div>' +
+          '<div class="num-main">IDR ' + c.revenue.toFixed(2) + ' M</div>' +
         '</td>' +
         '<td class="td-num">' +
           '<div class="num-main">' + mtOnly + '</div>' +
@@ -1206,11 +1206,11 @@ function printMonthReport() {
         '<div style="font-size:9px;color:#94a3b8;margin-top:3px;">' + chains.length + ' proyek konsolidasi</div>' +
       '</td>' +
       '<td class="td-num">' +
-        '<div class="total-val">IDR ' + totalMargin.toFixed(1) + ' M</div>' +
+        '<div class="total-val">IDR ' + totalMargin.toFixed(2) + ' M</div>' +
         '<div class="total-val-sub">' + totalConsolPct + '% of revenue</div>' +
       '</td>' +
       '<td class="td-num">' +
-        '<div class="total-val">IDR ' + totalRev.toFixed(1) + ' M</div>' +
+        '<div class="total-val">IDR ' + totalRev.toFixed(2) + ' M</div>' +
       '</td>' +
       '<td class="td-num">' +
         '<div class="total-val">' + totalMTDisplay + '</div>' +
@@ -1222,8 +1222,8 @@ function printMonthReport() {
 
   var progressWidth = attPct != null ? Math.min(attPct, 100).toFixed(1) : '0';
   var attPctDisplay = attPct != null ? attPct.toFixed(1) + '%' : '—';
-  var actualDisplay = actual != null ? 'IDR ' + actual.toFixed(1) + ' M' : '—';
-  var budgetDisplay = 'IDR ' + budget.toFixed(1) + ' M';
+  var actualDisplay = actual != null ? 'IDR ' + actual.toFixed(2) + ' M' : '—';
+  var budgetDisplay = 'IDR ' + budget.toFixed(2) + ' M';
 
   var html = '<!DOCTYPE html>' +
     '<html lang="id"><head>' +
@@ -1343,7 +1343,7 @@ function printMonthReport() {
     '</div>' +
 
     '<div class="rfooter">' +
-      '<span>Margin Tracker 2026 &bull; Group GP &bull; Dokumen Internal &bull; RAHASIA</span>' +
+      '<span>Sales Pulse 2026 &bull; Group GP &bull; Dokumen Internal &bull; RAHASIA</span>' +
       '<span>Dicetak: ' + printDate + ' &bull; Data: PS Consolidated Net Margin After All Costs</span>' +
     '</div>' +
 
@@ -1638,20 +1638,20 @@ function sendChat(){
 
   const qtyCtx = isQtyQ ? buildQtyContext() : `\n(Data qty detail tersedia tapi tidak disertakan — pertanyaan ini tentang margin/finansial)\n`;
 
-  const ctx=`Kamu adalah AI Analyst untuk dashboard Margin Tracker 2026 perusahaan trading baja GP+ATL.
+  const ctx=`Kamu adalah AI Analyst untuk dashboard Sales Pulse 2026 perusahaan trading baja GP+ATL.
 Jawab SPESIFIK sesuai pertanyaan. Jika ditanya tentang produk/qty tertentu, jawab HANYA produk/qty tersebut dulu, baru tambahkan konteks bila perlu.
 
 === DATA FINANSIAL ===
 BUDGET BULANAN (MIDR): ${BUDGET_MARGIN.map((v,i)=>MONTHS[i]+'='+v).join(', ')}
 FULL YEAR BUDGET: ${BUDGET_MARGIN.reduce((a,b)=>a+b,0)} MIDR
 
-AKTUAL JANUARI 2026: ${janM?janM.toFixed(3)+' MIDR':'belum ada'} | Achievement: ${janAch||'?'}% | Revenue: ${ACTUAL.revenue[0]?.toFixed(0)||'?'} MIDR
+AKTUAL JANUARI 2026: ${janM?janM.toFixed(2)+' MIDR':'belum ada'} | Achievement: ${janAch||'?'}% | Revenue: ${ACTUAL.revenue[0]?.toFixed(0)||'?'} MIDR
   Proyek Jan: SSSC 12A 702.054M(10.07%), SSSC 12B 345.211M(9.90%), Youfa 7 207.133M(8.17%), Mlion 09A 2436.115M(10.88%), Mlion 09B 2296.507M(10.88%)
 
-AKTUAL FEBRUARI 2026: ${febM?febM.toFixed(3)+' MIDR':'belum ada'} | Achievement: ${febAch||'?'}% | Revenue: ${ACTUAL.revenue[1]?.toFixed(0)||'?'} MIDR
+AKTUAL FEBRUARI 2026: ${febM?febM.toFixed(2)+' MIDR':'belum ada'} | Achievement: ${febAch||'?'}% | Revenue: ${ACTUAL.revenue[1]?.toFixed(0)||'?'} MIDR
   Proyek Feb: Youfa 8 51.389M(7.17%), Youfa 9 R1 320.846M(7.88%)
 
-YTD: Aktual ${ytdActual.toFixed(3)} M vs Budget ${ytdBudget.toFixed(0)} M | Achievement ${ytdPct}% | Margin% ${ytdMPct}%
+YTD: Aktual ${ytdActual.toFixed(2)} M vs Budget ${ytdBudget.toFixed(0)} M | Achievement ${ytdPct}% | Margin% ${ytdMPct}%
 
 === DATA PRODUK & QTY ===${qtyCtx}
 === PERTANYAAN USER ===
@@ -1824,9 +1824,9 @@ Total: Revenue IDR 10,459.440 M · Margin <strong>IDR 1,047.265 M</strong>`;
   // ── 6. FINANSIAL ─────────────────────────────────────────────────────────
   if(has('achievement','pencapaian','capaian'))
     return `<strong>Achievement vs Budget 2026:</strong><br>
-• Januari: <strong>${d.janAch||'?'}%</strong> — actual ${d.janM?.toFixed(3)||'?'} M vs budget ${BUDGET_MARGIN[0]} MIDR<br>
-• Februari: <strong>${d.febAch||'?'}%</strong> — actual ${d.febM?.toFixed(3)||'?'} M vs budget ${BUDGET_MARGIN[1]} MIDR<br>
-<strong>YTD Achievement: ${d.ytdPct}%</strong> · total actual ${d.ytdActual.toFixed(3)} M vs ${d.ytdBudget.toFixed(0)} M`;
+• Januari: <strong>${d.janAch||'?'}%</strong> — actual ${d.janM?.toFixed(2)||'?'} M vs budget ${BUDGET_MARGIN[0]} MIDR<br>
+• Februari: <strong>${d.febAch||'?'}%</strong> — actual ${d.febM?.toFixed(2)||'?'} M vs budget ${BUDGET_MARGIN[1]} MIDR<br>
+<strong>YTD Achievement: ${d.ytdPct}%</strong> · total actual ${d.ytdActual.toFixed(2)} M vs ${d.ytdBudget.toFixed(0)} M`;
 
   if(has('margin %','margin persen','persentase margin')||ql.match(/margin.*%|%.*margin/))
     return `<strong>Margin % per Proyek:</strong><br>
@@ -1845,7 +1845,7 @@ Volume kecil (43 MT) dan margin % terendah. Disusul Youfa 7 — 207.133 M (8.17%
 
   if(has('ytd','year to date') || (has('total','keseluruhan') && has('margin')))
     return `<strong>YTD 2026</strong> (Jan + Feb · 9 proyek):<br>
-Actual: <strong>${d.ytdActual.toFixed(3)} MIDR</strong> · Budget: ${d.ytdBudget.toFixed(0)} MIDR<br>
+Actual: <strong>${d.ytdActual.toFixed(2)} MIDR</strong> · Budget: ${d.ytdBudget.toFixed(0)} MIDR<br>
 Achievement: <strong>${d.ytdPct}%</strong> · Margin %: <strong>${d.ytdMPct}%</strong><br>
 Jan: 5,987.020 M (10.60%) · Feb: 3,300.817 M (14.15%)`;
 
@@ -1857,20 +1857,20 @@ Feb Mlion 10A+10B: IDR <strong>17,070</strong>/USD (Hanwa Singapore)`;
 
   if(has('gap','selisih') || (has('kurang') && has('budget')))
     return `<strong>Gap Actual vs Budget:</strong><br>
-Jan: <strong>${(d.janM-BUDGET_MARGIN[0]>=0?'+':'')+(d.janM-BUDGET_MARGIN[0]).toFixed(3)} MIDR</strong> (actual ${d.janM?.toFixed(3)} vs budget ${BUDGET_MARGIN[0]})<br>
-Feb: <strong>${(d.febM-BUDGET_MARGIN[1]>=0?'+':'')+(d.febM-BUDGET_MARGIN[1]).toFixed(3)} MIDR</strong> (actual ${d.febM?.toFixed(3)} vs budget ${BUDGET_MARGIN[1]})<br>
-<strong>YTD Gap: ${(d.ytdActual-d.ytdBudget>=0?'+':'')+(d.ytdActual-d.ytdBudget).toFixed(3)} MIDR</strong>`;
+Jan: <strong>${(d.janM-BUDGET_MARGIN[0]>=0?'+':'')+(d.janM-BUDGET_MARGIN[0]).toFixed(2)} MIDR</strong> (actual ${d.janM?.toFixed(2)} vs budget ${BUDGET_MARGIN[0]})<br>
+Feb: <strong>${(d.febM-BUDGET_MARGIN[1]>=0?'+':'')+(d.febM-BUDGET_MARGIN[1]).toFixed(2)} MIDR</strong> (actual ${d.febM?.toFixed(2)} vs budget ${BUDGET_MARGIN[1]})<br>
+<strong>YTD Gap: ${(d.ytdActual-d.ytdBudget>=0?'+':'')+(d.ytdActual-d.ytdBudget).toFixed(2)} MIDR</strong>`;
 
   if(inJan && !has('ppgl','welded','sheet','pipe','pipa','coil','qty','volume','berat','produk'))
     return `<strong>Januari 2026</strong> — 5 proyek:<br>
-Margin: <strong>${d.janM?.toFixed(3)||'?'} MIDR</strong> · Achievement: <strong>${d.janAch||'?'}%</strong> vs budget ${BUDGET_MARGIN[0]} MIDR<br>
+Margin: <strong>${d.janM?.toFixed(2)||'?'} MIDR</strong> · Achievement: <strong>${d.janAch||'?'}%</strong> vs budget ${BUDGET_MARGIN[0]} MIDR<br>
 • Mlion 09A: 2,436.115 M (10.88%) · Mlion 09B: 2,296.507 M (10.88%)<br>
 • SSSC 12A: 702.054 M (10.07%) · SSSC 12B: 345.211 M (9.90%) · Youfa 7: 207.133 M (8.17%)<br>
 Volume: PPGL 600 MT + Sheet Pile 3,107 MT + Welded Pipes 177 MT = <strong>3,884 MT</strong>`;
 
   if(inFeb && !has('welded','sheet','pipe','pipa','coil','qty','volume','berat','produk'))
     return `<strong>Februari 2026</strong> — 4 proyek:<br>
-Margin: <strong>${d.febM?.toFixed(3)||'?'} MIDR</strong> · Achievement: <strong>${d.febAch||'?'}%</strong> vs budget ${BUDGET_MARGIN[1]} MIDR<br>
+Margin: <strong>${d.febM?.toFixed(2)||'?'} MIDR</strong> · Achievement: <strong>${d.febAch||'?'}%</strong> vs budget ${BUDGET_MARGIN[1]} MIDR<br>
 • Mlion 10A [Net]: <strong>960.745 M (15.79%)</strong> · Sheet Pile 535 pcs<br>
 • Mlion 10B [Consol. Net]: <strong>1,967.837 M (15.80%)</strong> · Sheet Pile 1,465 pcs<br>
 • Youfa 9 R1: 320.846 M (7.88%) · Youfa 8: 51.389 M (7.17%)<br>
@@ -1925,7 +1925,7 @@ Consolidated Mlion 10B margin diperhitungkan dari purchase BTS (origin cost Hanw
 • <em>"qty PPGL Januari"</em> · <em>"berapa pcs sheet pile"</em> · <em>"welded pipes Februari"</em><br>
 • <em>"detail Youfa 9"</em> · <em>"margin Mlion 09A"</em> · <em>"volume Jan"</em><br>
 • <em>"achievement"</em> · <em>"gap vs budget"</em> · <em>"supplier"</em> · <em>"kurs FX"</em><br>
-YTD: <strong>${d.ytdActual.toFixed(3)} MIDR</strong> aktual · achievement <strong>${d.ytdPct}%</strong>.`;
+YTD: <strong>${d.ytdActual.toFixed(2)} MIDR</strong> aktual · achievement <strong>${d.ytdPct}%</strong>.`;
 }
 
 // ═══════════════════════════════════════════════════════
